@@ -1,6 +1,7 @@
 package respository
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
@@ -22,7 +23,7 @@ type UserRepository interface {
 	FindByEmail(email string) entity.User
 	ProfileUser(userID string) entity.User
 	InsertWebUser(user entity.User) entity.User
-	VerifyOTP(email string, otp string) entity.User
+	VerifyOTP(email string, otp string) (entity.User, error)
 	SendOTP(email string) error
 }
 
@@ -120,18 +121,18 @@ func (db *userConnection) SendOTP(email string) error {
 	}
 }
 
-func (db *userConnection) VerifyOTP(email string, otp string) entity.User {
+func (db *userConnection) VerifyOTP(email string, otp string) (entity.User, error) {
 	var user entity.User
 	db.connection.Where("email = ?", email).Take(&user)
 
-	//err := errors.New("invalid code, please check your email and try again")
 	if user.Verified_Otp == otp {
 		user.Verified = 1
 		db.connection.Save(&user)
-		return user
+		return user, nil
 	} else {
+		err := errors.New("invalid code, please check your email and try again")
 		user = entity.User{}
-		return user
+		return entity.User{}, err
 	}
 }
 

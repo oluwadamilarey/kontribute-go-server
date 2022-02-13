@@ -1,0 +1,3 @@
+- file names should be hyphenated.
+- how do someone new set up db tables and columns
+- what's the difference between service and repository? why not just make the "Save" calls in service?

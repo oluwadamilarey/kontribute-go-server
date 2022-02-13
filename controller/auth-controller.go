@@ -12,6 +12,7 @@ import (
 )
 
 //AuthController interface is a contract what this controller can do
+// idoqo: why do we have an extra interface for this?
 type AuthController interface {
 	Login(ctx *gin.Context)
 	Register(ctx *gin.Context)
