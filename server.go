@@ -8,6 +8,9 @@ import (
 	"github.com/Kontribute/kontribute-web-backend/service"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"log"
+	"net"
+	"os"
 )
 
 //go:generate sqlboiler --wipe mysql
@@ -20,13 +23,22 @@ var (
 	userService service.UserService = service.NewUserService(userRepository)
 
 	authService    service.AuthService       = service.NewAuthService(userRepository)
-	authController controller.AuthController = controller.NewAuthController(authService, jwtService)
 	userController controller.UserController = controller.NewUserController(userService, jwtService)
 )
 
 func main() {
+	dbConn, err := config.Connect(os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		net.JoinHostPort(os.Getenv("DB_HOST"), "3306"),
+		os.Getenv("DB_NAME"))
+	if err != nil {
+		log.Fatalf("could not connect to database: %s", err.Error())
+	}
+
 	defer config.CloseDatabaseConnection(db)
 	r := gin.Default()
+
+	authController := controller.NewAuthController(authService, jwtService, dbConn)
 	authRoutes := r.Group("api/auth")
 	{
 		authRoutes.POST("/login", authController.Login)

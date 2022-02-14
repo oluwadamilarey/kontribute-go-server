@@ -50,7 +50,10 @@ func (service *userService) CheckEmailInDb(email string) entity.User {
 }
 
 func (service *userService) VerifyEmail(email string, otp string) entity.User {
-	user := service.userRepository.VerifyOTP(email, otp)
+	user, err := service.userRepository.VerifyOTP(email, otp)
+	if err != nil {
+
+	}
 	if user.Email != "" {
 		return user
 	}

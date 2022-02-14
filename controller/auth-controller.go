@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/jmoiron/sqlx"
 	"net/http"
 	"strconv"
 
@@ -12,6 +13,7 @@ import (
 )
 
 //AuthController interface is a contract what this controller can do
+// idoqo: why do we have an extra interface for this?
 type AuthController interface {
 	Login(ctx *gin.Context)
 	Register(ctx *gin.Context)
@@ -20,14 +22,16 @@ type AuthController interface {
 type authController struct {
 	authService service.AuthService
 	jwtService  service.JWTService
+	conn *sqlx.DB
 }
 
 //NewAuthController creates a new instance of AuthController
 //authService service.AuthService, jwtService service.JWTService -potential arguemnets
-func NewAuthController(authService service.AuthService, jwtService service.JWTService) AuthController {
+func NewAuthController(authService service.AuthService, jwtService service.JWTService, conn *sqlx.DB) AuthController {
 	return &authController{
 		authService: authService,
 		jwtService:  jwtService,
+		conn: conn,
 	}
 }
 
@@ -63,10 +67,10 @@ func (c *authController) Register(ctx *gin.Context) {
 		response := helper.BuildErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
 	} else {
-		createdUser := c.authService.CreateUser(registerDTO)
+		/*createdUser := c.authService.CreateUser(registerDTO)
 		token := c.jwtService.GenerateToken(strconv.FormatUint(createdUser.ID, 10))
 		createdUser.Token = token
 		response := helper.BuildResponse(true, "OK!", createdUser)
-		ctx.JSON(http.StatusCreated, response)
+		ctx.JSON(http.StatusCreated, response)*/
 	}
 }
